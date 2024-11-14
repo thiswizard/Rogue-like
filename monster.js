@@ -13,13 +13,13 @@ export class Monster {
     }
   
     attack(player) {
-      let damage = this.attackpower
+      let damage = this.attackpower.toFixed(1)
       player.hp -= damage
       return damage
     }
   
     shield(player){
-      let damage = player.attackpower * 0.20
+      let damage = (player.attackpower * 0.20).toFixed(1)
       this.hp -= damage
       return damage
     }

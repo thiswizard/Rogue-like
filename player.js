@@ -7,7 +7,7 @@ export class Player { // 공격 , 방어 , 카운터 , 도망치기
       this.max_hp = 200
       this.hp = 200;
       this.max_lcuk = 1
-      this.luck = 1
+      this.luck = 2
       this.max_attackpower = 10
       this.attackpower = 10;
       
@@ -45,7 +45,7 @@ export class Player { // 공격 , 방어 , 카운터 , 도망치기
       return the_hp
     }
     reowrd_lcuk(){
-      let the_luck = parseFloat(((Math.random() * 0.8) + 1.1).toFixed(1));
+      let the_luck = random_number(1,2)
       this.max_lcuk += the_luck
       this.luck = this.max_lcuk
       return the_luck

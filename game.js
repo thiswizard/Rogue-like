@@ -9,19 +9,19 @@ function random_number(min,max){
 
 
 
-function displayshow(stage, player, monster) { // 스테이지 , 플레이어 체력 , 몬스터 체력
+function displayshow(stage, the_difficulty ,player, monster) { // 스테이지 , 플레이어 체력 , 몬스터 체력
   console.log(chalk.magentaBright('='.repeat(90)))
   console.log(
-    chalk.cyanBright(`| Stage: ${stage} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower} 스킬행운:${player.luck}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
+    chalk.cyanBright(`| Stage: ${stage} `) + chalk.cyanBright(`| 난이도: ${the_difficulty} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower} 스킬행운:${player.luck}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
   console.log(chalk.magentaBright('='.repeat(90)));
 }
 
-const battle = async (stage, player, monster) => {  // battle 결과값 lose , win , escape
+const battle = async (stage, the_difficulty ,player, monster) => {  // battle 결과값 lose , win , escape
   let logs = [];
 
   while(player.hp > 0) {
     console.clear();
-    displayshow(stage, player, monster); // 스테이지 , 플레이어 체력 , 몬스터 체력
+    displayshow(stage, the_difficulty ,player, monster); // 스테이지 , 플레이어 체력 , 몬스터 체력
 
     logs.forEach((log) => console.log(log));
 
@@ -121,11 +121,47 @@ export async function startGame() {
   console.clear();
   let stage = 1;
   const player = new Player();
+  let the_difficulty = ""
+  while(true){
+    console.log(chalk.blue("1.초급 2.중급 3.고급"))
+    let difficulty = readlineSync.question("원하시는 난이도를 선택하세요(1~3번 선택):")
+    switch(difficulty){
+      case "1" :
+        the_difficulty = "초급"
+        console.log(chalk.green(`${the_difficulty} 난이도를 선택하셨습니다`))
+        break;
+      case "2" :
+        the_difficulty = "중급"
+        console.log(chalk.blue(`${the_difficulty} 난이도를 선택하셨습니다`))
+        player.max_hp = player.max_hp - 50
+        player.hp = player.max_hp
+        player.max_attackpower = player.max_attackpower -3
+        player.attackpower = player.max_attackpower
+        player.max_lcuk = player.max_lcuk -1
+        player.luck = player.max_lcuk
+        break;
+      case "3" :
+        the_difficulty = "고급"
+        console.log(chalk.red(`${the_difficulty} 난이도를 선택하셨습니다`))
+        player.max_hp = player.max_hp - 100
+        player.hp = player.max_hp
+        player.max_attackpower = player.max_attackpower -5
+        player.attackpower = player.max_attackpower
+        player.max_lcuk = player.max_lcuk -2
+        player.luck = player.max_lcuk
+        break;
+      default :
+        console.log("올바른 선택을 하세요(1번~3번)")
+        continue
+    }
+    break
+  }
+
 
   while (stage <= 10) {
     
     const monster = new Monster(stage);
-    const result = await battle(stage, player, monster);
+    const result = await battle(stage, the_difficulty,  player, monster);
 
     if(result == "escape"){
       console.log("다른 스테이지로 이동")
