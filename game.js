@@ -1,75 +1,19 @@
 import chalk from 'chalk';
 import readlineSync from 'readline-sync';
+import { Monster } from './monster.js';
+import { Player } from './player.js';
 
 function random_number(min,max){
-  return Math.floor(Math.random() * (max-min+1)) + min
+  return parseFloat(Math.floor(Math.random() * (max-min+1)) + min)
 }
 
-class Player { // 공격 , 방어 , 카운터 , 도망치기
-  constructor() {
-    this.hp = 200;
-    this.attackpower = 10;
 
-  }
-  attack(monster) {
-    let damage = this.attackpower
-    monster.hp -= damage
-    return damage
-  }
-  shield(monster){
-    let damage = monster.attackpower * 0.30
-    this.hp -= damage
-    return damage
-  }
-  counterattack(monster){
-      let damage = monster.attackpower * 3
-      monster.hp -= damage
-      return damage
-  }
-  run_fail_damage(monster){
-    let damage = monster.attackpower * 1.5
-    this.hp -= damage
-    return damage
-  }
-  reword_hp(){
-    this.hp += 100
-    return this.hp
-  }
-  reword_power(){
-    this.attackpower += 5
-    return this.attackpower
-  }
-  
-}
-
-class Monster {
-  constructor(stage) {
-    this.hp = 100;
-    this.attackpower = 10;
-
-    this.hp += (stage-1) * 20
-    this.attackpower += (stage-1) * 3 
-  }
-
-  attack(player) {
-    let damage = this.attackpower
-    player.hp -= damage
-    return damage
-  }
-
-  shield(player){
-    let damage = player.attackpower * 0.20
-    this.hp -= damage
-    return damage
-  }
-
-}
 
 function displayshow(stage, player, monster) { // 스테이지 , 플레이어 체력 , 몬스터 체력
-  console.log(chalk.magentaBright('='.repeat(75)))
+  console.log(chalk.magentaBright('='.repeat(90)))
   console.log(
-    chalk.cyanBright(`| Stage: ${stage} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
-  console.log(chalk.magentaBright('='.repeat(75)));
+    chalk.cyanBright(`| Stage: ${stage} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower} 스킬행운:${player.luck}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
+  console.log(chalk.magentaBright('='.repeat(90)));
 }
 
 const battle = async (stage, player, monster) => {  // battle 결과값 lose , win , escape
@@ -82,7 +26,7 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
     logs.forEach((log) => console.log(log));
 
     console.log(
-      chalk.green(`\n1.공격 2.방어 3.카운터 4.도망치기.`,)
+      chalk.green(`\n1.공격 2.방어 3.카운터(50%) 4.도망치기(30%).`,)
     );
 
     const choice = readlineSync.question('행동을 선택해 주세요: ');
@@ -110,8 +54,7 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
         break;
       case "4": // 도망
         if(random_number(1,10) > 7){
-          logs.push(chalk.blue("플레이어는 도망을 선택했습니다!"))
-          readlineSync.question("엔터를 누르면 다음 스테이지로 넘어 갑니다")
+          readlineSync.question("도망에 성공했습니다! 엔터를 누르면 다음 스테이지로 넘어 갑니다")
           return "escape"
         }
         else{
@@ -138,8 +81,8 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
 
     if(monster.hp<0){
       console.log(chalk.blue("\n몬스터를 처치 했습니다"))
-      
-      console.log(chalk.green("1.체력증가 , 2.공격증가 , 3.스킬 확률 증가"))
+      player.kill_monster()
+      console.log(chalk.green("1.체력증가 , 2.공격증가 , 3.스킬 행운 증가"))
       
       while(true){
       let reword_choice = readlineSync.question("받고싶은 보상을 선택하세요:")
@@ -152,6 +95,10 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
         case "2": // 공격증가
           let the_reword_power = player.reword_power()
           console.log(`공격력이 ${the_reword_power}만큼 증가했습니다`)
+          break;
+        case "3": // 행운증가
+          let the_reword_luck = player.reowrd_lcuk()
+          console.log(`스킬행운 이 ${the_reword_luck} 만큼 증가했습니다`)
           break;
         default :
           console.log("잘못된 값을 입력했습니다 다시 입력해주세요")
