@@ -3,6 +3,11 @@ import figlet from 'figlet';
 import readlineSync from 'readline-sync';
 import {startGame} from "./game.js";
 
+
+// 공격 증가를 하면 체력이 감소되고 체력증가를 하면 공격이 감소되는 버그 발견
+// 기능을 여러 파일들로 분활
+
+
 // 로비 화면을 출력하는 함수
 function displayLobby() {
     console.clear();
