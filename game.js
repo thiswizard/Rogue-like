@@ -1,88 +1,32 @@
 import chalk from 'chalk';
 import readlineSync from 'readline-sync';
+import { Monster } from './monster.js';
+import { Player } from './player.js';
 
 function random_number(min,max){
-  return Math.floor(Math.random() * (max-min+1)) + min
+  return parseFloat(Math.floor(Math.random() * (max-min+1)) + min)
 }
 
-class Player { // 공격 , 방어 , 카운터 , 도망치기
-  constructor() {
-    this.hp = 200;
-    this.attackpower = 10;
 
-  }
-  attack(monster) {
-    let damage = this.attackpower
-    monster.hp -= damage
-    return damage
-  }
-  shield(monster){
-    let damage = monster.attackpower * 0.30
-    this.hp -= damage
-    return damage
-  }
-  counterattack(monster){
-      let damage = monster.attackpower * 3
-      monster.hp -= damage
-      return damage
-  }
-  run_fail_damage(monster){
-    let damage = monster.attackpower * 1.5
-    this.hp -= damage
-    return damage
-  }
-  reword_hp(){
-    this.hp += 100
-    return this.hp
-  }
-  reword_power(){
-    this.attackpower += 5
-    return this.attackpower
-  }
-  
-}
 
-class Monster {
-  constructor(stage) {
-    this.hp = 100;
-    this.attackpower = 10;
-
-    this.hp += (stage-1) * 20
-    this.attackpower += (stage-1) * 3 
-  }
-
-  attack(player) {
-    let damage = this.attackpower
-    player.hp -= damage
-    return damage
-  }
-
-  shield(player){
-    let damage = player.attackpower * 0.20
-    this.hp -= damage
-    return damage
-  }
-
-}
-
-function displayshow(stage, player, monster) { // 스테이지 , 플레이어 체력 , 몬스터 체력
-  console.log(chalk.magentaBright('='.repeat(75)))
+function displayshow(stage, the_difficulty ,player, monster) { // 스테이지 , 플레이어 체력 , 몬스터 체력
+  console.log(chalk.magentaBright('='.repeat(115)))
   console.log(
-    chalk.cyanBright(`| Stage: ${stage} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
-  console.log(chalk.magentaBright('='.repeat(75)));
+    chalk.cyanBright(`| Stage: ${stage} `) + chalk.cyanBright(`| 난이도: ${the_difficulty} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower} 스킬데미지계수:${player.luck}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
+  console.log(chalk.magentaBright('='.repeat(115)));
 }
 
-const battle = async (stage, player, monster) => {  // battle 결과값 lose , win , escape
+const battle = async (stage, the_difficulty ,player, monster) => {  // battle 결과값 lose , win , escape
   let logs = [];
 
   while(player.hp > 0) {
     console.clear();
-    displayshow(stage, player, monster); // 스테이지 , 플레이어 체력 , 몬스터 체력
+    displayshow(stage, the_difficulty ,player, monster); // 스테이지 , 플레이어 체력 , 몬스터 체력
 
     logs.forEach((log) => console.log(log));
 
     console.log(
-      chalk.green(`\n1.공격 2.방어 3.카운터 4.도망치기.`,)
+      chalk.green(`\n1.공격 2.방어 3.카운터(50%) 4.도망치기(30%).`,)
     );
 
     const choice = readlineSync.question('행동을 선택해 주세요: ');
@@ -110,8 +54,7 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
         break;
       case "4": // 도망
         if(random_number(1,10) > 7){
-          logs.push(chalk.blue("플레이어는 도망을 선택했습니다!"))
-          readlineSync.question("엔터를 누르면 다음 스테이지로 넘어 갑니다")
+          readlineSync.question("도망에 성공했습니다! 엔터를 누르면 다음 스테이지로 넘어 갑니다")
           return "escape"
         }
         else{
@@ -125,21 +68,32 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
 
     // 몬스터 행동
     let The_monster_choice = random_number(1,2)
+    
     if(The_monster_choice == 1){ // 몬스터 공격
+      if(choice == "2"){
+        logs.push(chalk.red("방어로 인해 몬스터가 이번턴에는 움직이지 않습니다!"))  
+      }
+      else{
       let THE_monster_attack = monster.attack(player) 
       logs.push(chalk.red(`몬스터가 플레이어를 공격! ${THE_monster_attack}`))
+      }
     }
     else if(The_monster_choice == 2) { // 몬스터 방패
+      if(choice == "2"){
+        logs.push(chalk.red("방어로 인해 몬스터가 이번턴에는 움직이지 않습니다!"))  
+      }
+      else{
       let THE_monster_shield = monster.shield(player)
       logs.push(chalk.red(`몬스터가 방어를 했습니다! ${THE_monster_shield}`))
+      }
     }
       
 
 
     if(monster.hp<0){
       console.log(chalk.blue("\n몬스터를 처치 했습니다"))
-      
-      console.log(chalk.green("1.체력증가 , 2.공격증가 , 3.스킬 확률 증가"))
+      player.kill_monster()
+      console.log(chalk.green("1.체력증가 , 2.공격증가 , 3.스킬 데미지 증가"))
       
       while(true){
       let reword_choice = readlineSync.question("받고싶은 보상을 선택하세요:")
@@ -152,6 +106,10 @@ const battle = async (stage, player, monster) => {  // battle 결과값 lose , w
         case "2": // 공격증가
           let the_reword_power = player.reword_power()
           console.log(`공격력이 ${the_reword_power}만큼 증가했습니다`)
+          break;
+        case "3": // 행운증가
+          let the_reword_luck = player.reowrd_lcuk()
+          console.log(`스킬행운 이 ${the_reword_luck} 만큼 증가했습니다`)
           break;
         default :
           console.log("잘못된 값을 입력했습니다 다시 입력해주세요")
@@ -174,11 +132,47 @@ export async function startGame() {
   console.clear();
   let stage = 1;
   const player = new Player();
+  let the_difficulty = ""
+  while(true){
+    console.log(chalk.blue("1.초급 2.중급 3.고급"))
+    let difficulty = readlineSync.question("원하시는 난이도를 선택하세요(1~3번 선택):")
+    switch(difficulty){
+      case "1" :
+        the_difficulty = "초급"
+        console.log(chalk.green(`${the_difficulty} 난이도를 선택하셨습니다`))
+        break;
+      case "2" :
+        the_difficulty = "중급"
+        console.log(chalk.blue(`${the_difficulty} 난이도를 선택하셨습니다`))
+        player.max_hp = player.max_hp - 50
+        player.hp = player.max_hp
+        player.max_attackpower = player.max_attackpower -3
+        player.attackpower = player.max_attackpower
+        player.max_lcuk = player.max_lcuk -1
+        player.luck = player.max_lcuk
+        break;
+      case "3" :
+        the_difficulty = "고급"
+        console.log(chalk.red(`${the_difficulty} 난이도를 선택하셨습니다`))
+        player.max_hp = player.max_hp - 100
+        player.hp = player.max_hp
+        player.max_attackpower = player.max_attackpower -5
+        player.attackpower = player.max_attackpower
+        player.max_lcuk = player.max_lcuk -2
+        player.luck = player.max_lcuk
+        break;
+      default :
+        console.log("올바른 선택을 하세요(1번~3번)")
+        continue
+    }
+    break
+  }
+
 
   while (stage <= 10) {
     
     const monster = new Monster(stage);
-    const result = await battle(stage, player, monster);
+    const result = await battle(stage, the_difficulty,  player, monster);
 
     if(result == "escape"){
       console.log("다른 스테이지로 이동")

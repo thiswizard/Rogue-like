@@ -4,9 +4,6 @@ import readlineSync from 'readline-sync';
 import {startGame} from "./game.js";
 
 
-// 공격 증가를 하면 체력이 감소되고 체력증가를 하면 공격이 감소되는 버그 발견
-// 기능을 여러 파일들로 분활
-
 
 // 로비 화면을 출력하는 함수
 function displayLobby() {
@@ -36,9 +33,7 @@ function displayLobby() {
 
     // 옵션들
     console.log(chalk.blue('1.') + chalk.white(' 새로운 게임 시작'));
-    console.log(chalk.blue('2.') + chalk.white(' 업적 확인하기'));
-    console.log(chalk.blue('3.') + chalk.white(' 옵션'));
-    console.log(chalk.blue('4.') + chalk.white(' 종료'));
+    console.log(chalk.blue('2.') + chalk.white(' 종료'));
 
     // 하단 경계선
     console.log(line);
@@ -58,20 +53,9 @@ function handleUserInput() {
             startGame();
             break;
         case '2':
-            console.log(chalk.yellow('구현 준비중입니다.. 게임을 시작하세요'));
-            // 업적 확인하기 로직을 구현
-            handleUserInput();
-            break;
-        case '3':
-            console.log(chalk.blue('구현 준비중입니다.. 게임을 시작하세요'));
-            // 옵션 메뉴 로직을 구현
-            handleUserInput();
-            break;
-        case '4':
             console.log(chalk.red('게임을 종료합니다.'));
             // 게임 종료 로직을 구현
             process.exit(0); // 게임 종료
-            break;
         default:
             console.log(chalk.red('올바른 선택을 하세요.'));
             handleUserInput(); // 유효하지 않은 입력일 경우 다시 입력 받음
