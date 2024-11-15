@@ -10,10 +10,10 @@ function random_number(min,max){
 
 
 function displayshow(stage, the_difficulty ,player, monster) { // 스테이지 , 플레이어 체력 , 몬스터 체력
-  console.log(chalk.magentaBright('='.repeat(90)))
+  console.log(chalk.magentaBright('='.repeat(115)))
   console.log(
-    chalk.cyanBright(`| Stage: ${stage} `) + chalk.cyanBright(`| 난이도: ${the_difficulty} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower} 스킬행운:${player.luck}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
-  console.log(chalk.magentaBright('='.repeat(90)));
+    chalk.cyanBright(`| Stage: ${stage} `) + chalk.cyanBright(`| 난이도: ${the_difficulty} `) + chalk.blueBright(`| 플레이어 정보: HP:${player.hp} 공격력:${player.attackpower} 스킬데미지계수:${player.luck}`,) +chalk.redBright(`| 몬스터 정보 | HP:${monster.hp} 공격력:${monster.attackpower}`));
+  console.log(chalk.magentaBright('='.repeat(115)));
 }
 
 const battle = async (stage, the_difficulty ,player, monster) => {  // battle 결과값 lose , win , escape
@@ -68,13 +68,24 @@ const battle = async (stage, the_difficulty ,player, monster) => {  // battle �
 
     // 몬스터 행동
     let The_monster_choice = random_number(1,2)
+    
     if(The_monster_choice == 1){ // 몬스터 공격
+      if(choice == "2"){
+        logs.push(chalk.red("방어로 인해 몬스터가 이번턴에는 움직이지 않습니다!"))  
+      }
+      else{
       let THE_monster_attack = monster.attack(player) 
       logs.push(chalk.red(`몬스터가 플레이어를 공격! ${THE_monster_attack}`))
+      }
     }
     else if(The_monster_choice == 2) { // 몬스터 방패
+      if(choice == "2"){
+        logs.push(chalk.red("방어로 인해 몬스터가 이번턴에는 움직이지 않습니다!"))  
+      }
+      else{
       let THE_monster_shield = monster.shield(player)
       logs.push(chalk.red(`몬스터가 방어를 했습니다! ${THE_monster_shield}`))
+      }
     }
       
 
@@ -82,7 +93,7 @@ const battle = async (stage, the_difficulty ,player, monster) => {  // battle �
     if(monster.hp<0){
       console.log(chalk.blue("\n몬스터를 처치 했습니다"))
       player.kill_monster()
-      console.log(chalk.green("1.체력증가 , 2.공격증가 , 3.스킬 행운 증가"))
+      console.log(chalk.green("1.체력증가 , 2.공격증가 , 3.스킬 데미지 증가"))
       
       while(true){
       let reword_choice = readlineSync.question("받고싶은 보상을 선택하세요:")

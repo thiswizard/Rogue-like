@@ -6,7 +6,7 @@ export class Player { // 공격 , 방어 , 카운터 , 도망치기
     constructor() {
       this.max_hp = 200
       this.hp = 200;
-      this.max_lcuk = 1
+      this.max_lcuk = 2
       this.luck = 2
       this.max_attackpower = 10
       this.attackpower = 10;
